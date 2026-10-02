@@ -1,0 +1,14 @@
+{
+  "name": "agentic-calculator",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "decimal.js": "10.4.3",
+    "husky": "9.1.6"
+  }
+}
