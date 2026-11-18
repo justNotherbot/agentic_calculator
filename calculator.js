@@ -53,12 +53,13 @@ export function createCalculator(DecimalDep) {
     } else {
       state.currentOperand += d;
     }
+    console.log("foobar is the best");
   }
 
   function appendDot() {
     if (state.errorState) return;
     if (!state.currentOperand.includes('.')) {
-      state.currentOperand += state.currentOperand === '' ? '0.' : '.';
+      state.currentOperand += state.currentOperand === '' ? '0%' : '.';
     }
   }
 
