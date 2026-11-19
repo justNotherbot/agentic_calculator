@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Precision Calculator | Scenario Prototype</title>
+    <link rel="stylesheet" href="./mockup.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="intro">
+        <div>
+          <p class="eyebrow">Practice 8 / AI-assisted prototype</p>
+          <h1>Calculate with confidence.<br /><em>Keep the proof.</em></h1>
+          <p class="lead">A proposed flow for precise calculations and a saved history. These are static design screens, not the working calculator.</p>
+        </div>
+        <div class="legend" aria-label="Scenario legend">
+          <span class="legend-dot"></span> One expression, six interface states
+          <small>0.1 + 0.2 = 0.3</small>
+        </div>
+      </header>
+
+      <div class="screens">
+        <section class="scenario" aria-labelledby="initial-title">
+          <div class="caption"><span class="step">01</span><div><h2 id="initial-title">Ready to calculate</h2><p>Initial screen</p></div></div>
+          <div class="app">
+            <div class="app-header"><strong>PRECISION<span> / CALC</span></strong><span class="history-label">History <b>0</b></span></div>
+            <div class="display"><span class="expression">Enter a calculation</span><output aria-label="Result">0</output></div>
+            <div class="workspace"><p class="section-title">Recent calculations</p><div class="empty"><span class="empty-icon" aria-hidden="true">≡</span><strong>Nothing here yet</strong><small>Your results will appear here after you calculate.</small></div></div>
+            <div class="scientific"><button type="button" aria-label="Base-10 logarithm">log₁₀</button><button type="button" aria-label="Modulo (remainder)">mod</button></div>
+            <div class="controls"><button type="button" class="control" aria-label="Clear all">AC</button><button type="button" class="control" aria-label="Insert pi">π</button><button type="button" class="control" aria-label="Backspace">⌫</button><button type="button" class="operator" aria-label="Divide">÷</button><button type="button" class="control">sin</button><button type="button" class="control">cos</button><button type="button" class="control">exp</button><button type="button" class="operator" aria-label="Multiply">×</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="operator" aria-label="Subtract">−</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button" class="operator" aria-label="Add">+</button><button type="button" class="control" aria-label="Square root">√</button><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button" class="operator" aria-label="Power">^</button><button type="button">0</button><button type="button">.</button><button type="button" class="equals" aria-label="Calculate">=</button></div>
+            <p class="app-foot">Keyboard supported · Decimal precision</p>
+          </div>
+        </section>
+
+        <section class="scenario" aria-labelledby="input-title">
+          <div class="caption"><span class="step">02</span><div><h2 id="input-title">Build the expression</h2><p>Input and keyboard focus</p></div></div>
+          <div class="app">
+            <div class="app-header"><strong>PRECISION<span> / CALC</span></strong><span class="history-label">History <b>0</b></span></div>
+            <div class="display"><span class="expression">0.1 +</span><output aria-label="Current operand">0.2</output></div>
+            <div class="workspace"><p class="section-title">Ready to solve</p><div class="note">Press <kbd>Enter</kbd> or select <strong>=</strong> to calculate and save this result.</div></div>
+            <div class="scientific"><button type="button" aria-label="Base-10 logarithm">log₁₀</button><button type="button" aria-label="Modulo (remainder)">mod</button></div>
+            <div class="controls"><button type="button" class="control">AC</button><button type="button" class="control">π</button><button type="button" class="control" aria-label="Backspace">⌫</button><button type="button" class="operator">÷</button><button type="button" class="control">sin</button><button type="button" class="control">cos</button><button type="button" class="control">exp</button><button type="button" class="operator">×</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="operator">−</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button" class="operator">+</button><button type="button" class="control">√</button><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button" class="operator">^</button><button type="button">0</button><button type="button">.</button><button type="button" class="equals focus-example" aria-label="Calculate, focused">=</button></div>
+            <p class="app-foot">Focus is visible when using Tab</p>
+          </div>
+        </section>
+
+        <section class="scenario" aria-labelledby="loading-title">
+          <div class="caption"><span class="step">03</span><div><h2 id="loading-title">One submission</h2><p>Loading; no duplicate request</p></div></div>
+          <div class="app">
+            <div class="app-header"><strong>PRECISION<span> / CALC</span></strong><span class="history-label">History <b>0</b></span></div>
+            <div class="display"><span class="expression">0.1 + 0.2</span><output aria-label="Pending result">0.3</output></div>
+            <div class="workspace"><p class="section-title">Saving result</p><div class="notice pending" role="status"><span class="spinner" aria-hidden="true"></span><div><strong>Saving calculation…</strong><small>Please wait. Enter and = cannot submit again.</small></div></div></div>
+            <div class="scientific"><button type="button" aria-label="Base-10 logarithm">log₁₀</button><button type="button" aria-label="Modulo (remainder)">mod</button></div>
+            <div class="controls"><button type="button" class="control">AC</button><button type="button" class="control">π</button><button type="button" class="control" aria-label="Backspace">⌫</button><button type="button" class="operator">÷</button><button type="button" class="control">sin</button><button type="button" class="control">cos</button><button type="button" class="control">exp</button><button type="button" class="operator">×</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="operator">−</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button" class="operator">+</button><button type="button" class="control">√</button><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button" class="operator">^</button><button type="button">0</button><button type="button">.</button><button type="button" class="equals" disabled aria-label="Saving calculation">Saving</button></div>
+            <p class="app-foot">The request is in progress</p>
+          </div>
+        </section>
+
+        <section class="scenario" aria-labelledby="success-title">
+          <div class="caption"><span class="step">04</span><div><h2 id="success-title">Result saved</h2><p>Successful calculation</p></div></div>
+          <div class="app">
+            <div class="app-header"><strong>PRECISION<span> / CALC</span></strong><span class="history-label">History <b>2</b></span></div>
+            <div class="display"><span class="expression">0.1 + 0.2 =</span><output aria-label="Result">0.3</output></div>
+            <div class="workspace history-workspace"><p class="section-title">Recent calculations · newest first</p><ol class="history-list"><li class="history-item"><div><time datetime="2026-11-19T14:32:00">19 Nov 2026 · 14:32</time><strong>0.1 + 0.2</strong></div><b>= 0.3</b></li><li class="history-item"><div><time datetime="2026-11-19T14:28:00">19 Nov 2026 · 14:28</time><strong>log₁₀(100)</strong></div><b>= 2</b></li></ol></div>
+            <div class="scientific"><button type="button" aria-label="Base-10 logarithm">log₁₀</button><button type="button" aria-label="Modulo (remainder)">mod</button></div>
+            <div class="controls"><button type="button" class="control">AC</button><button type="button" class="control">π</button><button type="button" class="control" aria-label="Backspace">⌫</button><button type="button" class="operator">÷</button><button type="button" class="control">sin</button><button type="button" class="control">cos</button><button type="button" class="control">exp</button><button type="button" class="operator">×</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="operator">−</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button" class="operator">+</button><button type="button" class="control">√</button><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button" class="operator">^</button><button type="button">0</button><button type="button">.</button><button type="button" class="equals">=</button></div>
+            <p class="app-foot">Full precision remains scrollable</p>
+          </div>
+        </section>
+
+        <section class="scenario" aria-labelledby="empty-title">
+          <div class="caption"><span class="step">05</span><div><h2 id="empty-title">No saved results</h2><p>Empty response / fresh history</p></div></div>
+          <div class="app">
+            <div class="app-header"><strong>PRECISION<span> / CALC</span></strong><span class="history-label">History <b>0</b></span></div>
+            <div class="display"><span class="expression">No active expression</span><output aria-label="Result">0</output></div>
+            <div class="workspace"><p class="section-title">Recent calculations</p><div class="empty"><span class="empty-icon" aria-hidden="true">≡</span><strong>No saved results</strong><small>Try a calculation to start your history.</small></div></div>
+            <div class="scientific"><button type="button" aria-label="Base-10 logarithm">log₁₀</button><button type="button" aria-label="Modulo (remainder)">mod</button></div>
+            <div class="controls"><button type="button" class="control">AC</button><button type="button" class="control">π</button><button type="button" class="control" aria-label="Backspace">⌫</button><button type="button" class="operator">÷</button><button type="button" class="control">sin</button><button type="button" class="control">cos</button><button type="button" class="control">exp</button><button type="button" class="operator">×</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="operator">−</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button" class="operator">+</button><button type="button" class="control">√</button><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button" class="operator">^</button><button type="button">0</button><button type="button">.</button><button type="button" class="equals">=</button></div>
+            <p class="app-foot">History is empty, not broken</p>
+          </div>
+        </section>
+
+        <section class="scenario" aria-labelledby="error-title">
+          <div class="caption"><span class="step">06</span><div><h2 id="error-title">Recover and retry</h2><p>Submission error</p></div></div>
+          <div class="app">
+            <div class="app-header"><strong>PRECISION<span> / CALC</span></strong><span class="history-label">History <b>0</b></span></div>
+            <div class="display"><span class="expression">0.1 + 0.2 =</span><output aria-label="Result">0.3</output></div>
+            <div class="workspace"><p class="section-title">Not saved</p><div class="notice failure" role="alert"><span class="error-icon" aria-hidden="true">!</span><div><strong>Could not save calculation</strong><small>Your result is safe on screen. Check the connection and try again.</small><button type="button" class="retry">Retry save →</button></div></div></div>
+            <div class="scientific"><button type="button" aria-label="Base-10 logarithm">log₁₀</button><button type="button" aria-label="Modulo (remainder)">mod</button></div>
+            <div class="controls"><button type="button" class="control">AC</button><button type="button" class="control">π</button><button type="button" class="control" aria-label="Backspace">⌫</button><button type="button" class="operator">÷</button><button type="button" class="control">sin</button><button type="button" class="control">cos</button><button type="button" class="control">exp</button><button type="button" class="operator">×</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="operator">−</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button" class="operator">+</button><button type="button" class="control">√</button><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button" class="operator">^</button><button type="button">0</button><button type="button">.</button><button type="button" class="equals">=</button></div>
+            <p class="app-foot">Invalid math shows ERROR; AC resets</p>
+          </div>
+        </section>
+      </div>
+      <footer class="page-foot">Static prototype · Planned history and save states are not implemented in the current application · Open <a href="./index.html">working calculator</a></footer>
+    </main>
+  </body>
+</html>
