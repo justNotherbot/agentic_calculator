@@ -1,356 +1,180 @@
-// Precision GUI Calculator using decimal.js for all arithmetic
-// State: previousOperand (string), currentOperand (string), operation (string|null)
-// Error handling: display 'Error' and lock until AC or first digit (as per UX choice below)
+import { createCalculator } from './calculator.js';
+import { historyStore } from './history.js';
 
-// Configure Decimal global context
-Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_EVEN, toExpNeg: -12, toExpPos: 20 });
-
+const calc = createCalculator(Decimal);
 const prevDisplay = document.getElementById('prev-display');
 const mainDisplay = document.getElementById('main-display');
+const saveStatus = document.getElementById('save-status');
+const historyList = document.getElementById('history-list');
+const historyEmpty = document.getElementById('history-empty');
+const historyError = document.getElementById('history-error');
+const clearHistory = document.getElementById('clear-history');
+const keypad = document.querySelector('[aria-label="Calculator keypad"]');
+let busy = false;
+let retryEntry = null;
 
-let previousOperand = '';
-let currentOperand = '0';
-let operation = null; // '+', '-', '*', '/', '^'
-let lastEquals = null; // stores last second operand for repeated '='
-let errorState = false;
-
-function updateDisplays() {
-  prevDisplay.textContent = formatPrevLine();
-  mainDisplay.textContent = formatMainDisplay();
-  // Keep view anchored to the right; user can scroll left to see more digits
+function display() {
+  const state = calc.getState();
+  prevDisplay.textContent = calc.prettyPrev();
+  mainDisplay.textContent = state.errorState ? 'ERROR' : (state.currentOperand || '0');
   mainDisplay.scrollLeft = mainDisplay.scrollWidth;
 }
 
-function formatPrevLine() {
-  if (errorState) return '';
-  if (!operation) return previousOperand ? `${pretty(previousOperand)}` : '';
-  return `${pretty(previousOperand)} ${opSymbol(operation)}`;
+function setBusy(value) {
+  busy = value;
+  keypad.classList.toggle('is-busy', value);
+  keypad.querySelectorAll('button').forEach((button) => { button.disabled = value; });
+  clearHistory.disabled = value;
+  const retry = historyError.querySelector('button');
+  if (retry) retry.disabled = value;
+  saveStatus.textContent = value ? 'Saving…' : (retryEntry ? 'Not saved' : 'Ready');
 }
 
-function formatMainDisplay() {
-  if (errorState) return 'ERROR';
-  return pretty(currentOperand);
+function showError(message, retry = false) {
+  historyError.replaceChildren();
+  historyError.append(document.createTextNode(message));
+  if (retry) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Retry save';
+    button.className = 'btn btn-ghost ml-2 rounded px-2 py-1 font-semibold underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-500';
+    button.addEventListener('click', () => saveCalculation(retryEntry));
+    historyError.append(button);
+  }
+  historyError.classList.remove('hidden');
 }
 
-function pretty(s) {
-  // Render full precision string (scrollable display reveals overflow)
-  if (s === '' || s === '.') s = '0';
+function renderHistory(entries) {
+  historyList.replaceChildren();
+  historyEmpty.hidden = entries.length > 0;
+  for (const entry of entries.slice().reverse()) {
+    const item = document.createElement('li');
+    item.className = 'card history-card';
+    const time = document.createElement('time');
+    time.dateTime = entry.timestamp;
+    time.textContent = new Date(entry.timestamp).toLocaleString();
+    const expression = document.createElement('div');
+    expression.className = 'history-expression break-all';
+    expression.textContent = entry.expression;
+    const result = document.createElement('div');
+    result.className = 'history-result break-all';
+    result.textContent = `= ${entry.result}`;
+    item.append(time, expression, result);
+    historyList.append(item);
+  }
+}
+
+async function loadHistory() {
   try {
-    const d = new Decimal(s);
-    return d.toString();
-  } catch (e) {
-    return s;
+    renderHistory(await historyStore.list());
+    historyError.classList.add('hidden');
+  } catch (_) {
+    showError('Could not load history. Check browser storage settings and reload.');
   }
 }
 
-function clearAll() {
-  previousOperand = '';
-  currentOperand = '0';
-  operation = null;
-  lastEquals = null;
-  errorState = false;
-}
-
-function clearEntry() {
-  if (errorState) return; // CE does nothing in error; AC required
-  currentOperand = '0';
-}
-
-function backspace() {
-  if (errorState) return; // ignore while in error
-  if (currentOperand.length <= 1) {
-    currentOperand = '0';
-  } else {
-    currentOperand = currentOperand.slice(0, -1);
-    if (currentOperand === '-' || currentOperand === '') currentOperand = '0';
-  }
-}
-
-function appendDigit(d) {
-  if (errorState) {
-    // First digit press clears and starts fresh
-    clearAll();
-  }
-  if (currentOperand === '0') {
-    currentOperand = d;
-  } else {
-    currentOperand += d;
-  }
-}
-
-function appendDot() {
-  if (errorState) return; // ignore until cleared
-  if (!currentOperand.includes('.')) {
-    currentOperand += currentOperand === '' ? '0.' : '.';
-  }
-}
-
-function chooseOperation(op) {
-  if (errorState) return;
-  if (operation && previousOperand !== '' && currentOperand !== '') {
-    // compute pending then set new op
-    compute();
-  }
-  if (currentOperand === '') return;
-  previousOperand = currentOperand;
-  currentOperand = '';
-  operation = op;
-  lastEquals = null;
-}
-
-function compute() {
-  if (errorState) return;
-  if (!operation) return;
-  if (previousOperand === '') return;
-  // if no current operand, use previous lastEquals for repeat, or repeat op with previousOperand as second? We'll default to use previousOperand if lastEquals present
-  let a = new Decimal(previousOperand);
-  let b;
-  if (currentOperand === '') {
-    if (lastEquals != null) {
-      b = new Decimal(lastEquals);
-    } else {
-      // repeat using same b = previousOperand (acts like doing op with itself)
-      b = new Decimal(previousOperand);
+async function saveCalculation(entry) {
+  if (busy || !entry) return;
+  setBusy(true);
+  historyError.classList.add('hidden');
+  try {
+    await historyStore.save(entry);
+    retryEntry = null;
+    try {
+      renderHistory(await historyStore.list());
+    } catch (_) {
+      showError('Calculation saved, but history could not be refreshed. Reload the page to view it.');
     }
-  } else {
-    b = new Decimal(currentOperand);
-    lastEquals = b.toString();
-  }
-
-  let result;
-  try {
-    switch (operation) {
-      case '+':
-        result = a.plus(b);
-        break;
-      case '-':
-        result = a.minus(b);
-        break;
-      case '*':
-        result = a.times(b);
-        break;
-      case '/':
-        if (b.isZero()) return setError();
-        result = a.dividedBy(b);
-        break;
-      case '^':
-        // Decimal.pow supports arbitrary exponents; invalid cases may throw
-        result = Decimal.pow(a, b);
-        break;
-      default:
-        return;
-    }
-  } catch (e) {
-    return setError();
-  }
-  if (!result.isFinite()) return setError();
-  previousOperand = '';
-  operation = null;
-  currentOperand = result.toString();
-}
-
-function sqrtImmediate() {
-  if (errorState) return;
-  // Apply to current if present, else to previous/current display value
-  let targetStr = currentOperand !== '' ? currentOperand : (previousOperand !== '' ? previousOperand : currentOperand);
-  try {
-    const x = new Decimal(targetStr);
-    if (x.isNegative()) return setError();
-    const y = x.sqrt();
-    currentOperand = y.toString();
-    previousOperand = '';
-    operation = null;
-  } catch (e) {
-    setError();
+  } catch (_) {
+    retryEntry = entry;
+    showError('Could not save calculation. Your result remains on screen.', true);
+  } finally {
+    setBusy(false);
   }
 }
 
-function applyUnary(fn) {
-  if (errorState) return;
-  const targetStr = currentOperand !== '' ? currentOperand : (previousOperand !== '' ? previousOperand : currentOperand);
-  try {
-    const x = new Decimal(targetStr);
-    const y = fn(x);
-    if (!y.isFinite()) return setError();
-    currentOperand = y.toString();
-    previousOperand = '';
-    operation = null;
-    lastEquals = null;
-  } catch (e) {
-    setError();
+function calculate() {
+  if (busy) return;
+  const before = calc.getState();
+  if (!before.operation || !before.previousOperand || !before.currentOperand) {
+    if (before.operation) showError('Enter the second number before calculating.');
+    return;
   }
-}
-
-// High-precision constants
-const PI = new Decimal('3.1415926535897932384626433832795028841971');
-const TWO_PI = PI.times(2);
-
-function insertPi() {
-  if (errorState) clearAll();
-  currentOperand = PI.toString();
-}
-
-function reduceToPiRange(x) {
-  // Reduce x to [-pi, pi]
-  if (x.isZero()) return x;
-  const k = x.div(TWO_PI).floor();
-  let r = x.minus(k.times(TWO_PI));
-  if (r.gt(PI)) r = r.minus(TWO_PI);
-  if (r.lt(PI.neg())) r = r.plus(TWO_PI);
-  return r;
-}
-
-function decExp(x) {
-  // exp series: sum_{n=0..∞} x^n / n!
-  const threshold = new Decimal('1e-34');
-  let sum = new Decimal(1);
-  let term = new Decimal(1);
-  for (let n = 1; n <= 200; n++) {
-    term = term.times(x).div(n);
-    sum = sum.plus(term);
-    if (term.abs().lt(threshold)) break;
+  calc.compute();
+  const after = calc.getState();
+  display();
+  if (after.errorState) {
+    showError('Invalid calculation. Check for division by zero or an invalid exponent, then press AC or enter a new number.');
+    return;
   }
-  return sum;
+  saveCalculation({ expression: `${before.previousOperand} ${before.operation} ${before.currentOperand}`, result: after.currentOperand, timestamp: new Date().toISOString() });
 }
 
-function decSin(x) {
-  // Reduce argument to improve convergence
-  const xr = reduceToPiRange(x);
-  const threshold = new Decimal('1e-34');
-  let sum = xr;
-  let term = xr;
-  const x2 = xr.times(xr);
-  for (let k = 1; k <= 200; k++) {
-    const denom = new Decimal(2 * k).times(2 * k + 1);
-    term = term.times(x2).div(denom).neg();
-    sum = sum.plus(term);
-    if (term.abs().lt(threshold)) break;
-  }
-  return sum;
-}
-
-function decCos(x) {
-  const xr = reduceToPiRange(x);
-  const threshold = new Decimal('1e-34');
-  let sum = new Decimal(1);
-  let term = new Decimal(1);
-  const x2 = xr.times(xr);
-  for (let k = 1; k <= 200; k++) {
-    const denom = new Decimal(2 * k - 1).times(2 * k);
-    term = term.times(x2).div(denom).neg();
-    sum = sum.plus(term);
-    if (term.abs().lt(threshold)) break;
-  }
-  return sum;
-}
-
-function setError() {
-  errorState = true;
-  currentOperand = 'ERROR';
-  previousOperand = '';
-  operation = null;
-}
-
-function opSymbol(op) {
-  return op === '/' ? '÷' : op === '*' ? '×' : op;
-}
-
-// Event delegation for buttons
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  const action = btn.dataset.action;
+function perform(action, value) {
+  if (busy) return;
+  const unary = ['sqrt', 'sin', 'cos', 'exp', 'log'].includes(action);
+  const operand = unary ? calc.getState().currentOperand || calc.getState().previousOperand : null;
   switch (action) {
-    case 'digit':
-      appendDigit(btn.dataset.digit);
-      break;
-    case 'dot':
-      appendDot();
-      break;
-    case 'op':
-      chooseOperation(btn.dataset.op);
-      break;
-    case 'eq':
-      compute();
-      break;
-    case 'ac':
-      clearAll();
-      break;
-    case 'del':
-      backspace();
-      break;
-    case 'sqrt':
-      sqrtImmediate();
-      break;
-    case 'pi':
-      insertPi();
-      break;
-    case 'sin':
-      applyUnary((x) => decSin(x));
-      break;
-    case 'cos':
-      applyUnary((x) => decCos(x));
-      break;
-    case 'exp':
-      applyUnary((x) => decExp(x));
-      break;
+    case 'digit': calc.appendDigit(value); break;
+    case 'dot': calc.appendDot(); break;
+    case 'op': calc.chooseOperation(value); break;
+    case 'mod': calc.chooseOperation('%'); break;
+    case 'eq': calculate(); return;
+    case 'ac': calc.clearAll(); break;
+    case 'del': calc.backspace(); break;
+    case 'pi': calc.insertPi(); break;
+    case 'sqrt': calc.sqrtImmediate(); break;
+    case 'sin': calc.applyUnarySin(); break;
+    case 'cos': calc.applyUnaryCos(); break;
+    case 'exp': calc.applyUnaryExp(); break;
+    case 'log': calc.applyUnaryLog(); break;
+    default: return;
   }
-  updateDisplays();
+  if (calc.getState().errorState) showError('Invalid input. Press AC or a digit to start again.');
+  else historyError.classList.add('hidden');
+  display();
+  if (unary && !calc.getState().errorState) {
+    const label = { sqrt: '√', sin: 'sin', cos: 'cos', exp: 'exp', log: 'log₁₀' }[action];
+    saveCalculation({ expression: `${label}(${operand})`, result: calc.getState().currentOperand, timestamp: new Date().toISOString() });
+  }
+}
+
+keypad.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (button) perform(button.dataset.action, button.dataset.digit || button.dataset.op);
 });
 
-// Keyboard support
-document.addEventListener('keydown', (e) => {
-  if (e.key >= '0' && e.key <= '9') {
-    appendDigit(e.key);
-  } else if (e.key === '.') {
-    appendDot();
-  } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/' || e.key === '^') {
-    chooseOperation(e.key);
-  } else if (e.key === 'Enter' || e.key === '=') {
-    e.preventDefault();
-    compute();
-  } else if (e.key === 'Backspace') {
-    backspace();
-  } else if (e.key === 'Escape') {
-    clearAll();
-  } else if (e.key.toLowerCase() === 'r' || e.key.toLowerCase() === 's') { // sqrt shortcut
-    sqrtImmediate();
-  } else if (e.key.toLowerCase() === 'p') {
-    insertPi();
-  }
-  updateDisplays();
+document.addEventListener('keydown', (event) => {
+  if (event.altKey || event.ctrlKey || event.metaKey || busy) return;
+  if (event.key === 'Enter' && event.target.closest('button')) return;
+  let action;
+  let value = event.key;
+  if (/^[0-9]$/.test(value)) action = 'digit';
+  else if (value === '.') action = 'dot';
+  else if ('+-*/^%'.includes(value) && value.length === 1) action = 'op';
+  else if (value === 'Enter' || value === '=') action = 'eq';
+  else if (value === 'Backspace') action = 'del';
+  else if (value === 'Escape') action = 'ac';
+  else if (value.toLowerCase() === 'r' || value.toLowerCase() === 's') action = 'sqrt';
+  else if (value.toLowerCase() === 'p') action = 'pi';
+  else if (value.toLowerCase() === 'l') action = 'log';
+  if (!action) return;
+  event.preventDefault();
+  perform(action, value);
 });
 
-// Initialize
-updateDisplays();
+clearHistory.addEventListener('click', async () => {
+  if (busy) return;
+  setBusy(true);
+  try {
+    await historyStore.clear();
+    await loadHistory();
+  } catch (_) {
+    showError('Could not clear history. Please try again.');
+  } finally {
+    setBusy(false);
+  }
+});
 
-// Tap/click zones to scroll like Pixel calculator: left half scrolls left, right half scrolls right
-// Also support press-and-hold auto-scroll
-(function setupTapScrollZones() {
-  let scrolling = false;
-  let dir = 0; // -1 left, +1 right
-  let rafId = null;
-  const step = () => {
-    if (!scrolling) return;
-    mainDisplay.scrollLeft += dir * 12; // pixels per frame
-    rafId = requestAnimationFrame(step);
-  };
-
-  const start = (event) => {
-    const rect = mainDisplay.getBoundingClientRect();
-    const x = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
-    dir = x < rect.width / 2 ? -1 : 1;
-    scrolling = true;
-    if (!rafId) rafId = requestAnimationFrame(step);
-  };
-  const stop = () => {
-    scrolling = false;
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = null;
-  };
-
-  mainDisplay.addEventListener('mousedown', start);
-  mainDisplay.addEventListener('touchstart', start, { passive: true });
-  window.addEventListener('mouseup', stop);
-  window.addEventListener('touchend', stop);
-})();
+display();
+loadHistory();

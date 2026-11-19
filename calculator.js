@@ -67,6 +67,7 @@ export function createCalculator(DecimalDep) {
     if (state.operation && state.previousOperand !== '' && state.currentOperand !== '') {
       compute();
     }
+    if (state.errorState) return;
     if (state.currentOperand === '') return;
     state.previousOperand = state.currentOperand;
     state.currentOperand = '';
@@ -103,6 +104,9 @@ export function createCalculator(DecimalDep) {
         case '/':
           if (b.isZero()) return setError();
           result = a.dividedBy(b); break;
+        case '%':
+          if (b.isZero()) return setError();
+          result = a.mod(b); break;
         case '^':
           result = Dec.pow(a, b); break;
         default:
@@ -183,6 +187,7 @@ export function createCalculator(DecimalDep) {
   function applyUnarySin() { applyUnary((x) => decSin(x)); }
   function applyUnaryCos() { applyUnary((x) => decCos(x)); }
   function applyUnaryExp() { applyUnary((x) => decExp(x)); }
+  function applyUnaryLog() { applyUnary((x) => x.lte(0) ? new Dec(NaN) : Dec.log(x, 10)); }
 
   function applyUnary(fn) {
     if (state.errorState) return;
@@ -225,6 +230,7 @@ export function createCalculator(DecimalDep) {
     applyUnarySin,
     applyUnaryCos,
     applyUnaryExp,
+    applyUnaryLog,
     insertPi,
     prettyPrev,
   };

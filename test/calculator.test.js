@@ -38,6 +38,37 @@ test('pow 2 ^ 3 = 8', () => {
   assert.equal(calc.getState().currentOperand, '8');
 });
 
+test('modulo 17 % 5 = 2', () => {
+  const calc = createCalculator(Decimal);
+  calc.appendDigit('1'); calc.appendDigit('7');
+  calc.chooseOperation('%');
+  calc.appendDigit('5');
+  calc.compute();
+  assert.equal(calc.getState().currentOperand, '2');
+});
+
+test('log10(100) = 2', () => {
+  const calc = createCalculator(Decimal);
+  calc.appendDigit('1'); calc.appendDigit('0'); calc.appendDigit('0');
+  calc.applyUnaryLog();
+  assert.equal(calc.getState().currentOperand, '2');
+});
+
+test('log10 of zero -> ERROR', () => {
+  const calc = createCalculator(Decimal);
+  calc.applyUnaryLog();
+  assert.equal(calc.getState().currentOperand, 'ERROR');
+});
+
+test('modulo by zero -> ERROR', () => {
+  const calc = createCalculator(Decimal);
+  calc.appendDigit('5');
+  calc.chooseOperation('%');
+  calc.appendDigit('0');
+  calc.compute();
+  assert.equal(calc.getState().currentOperand, 'ERROR');
+});
+
 test('sin(0) = 0', () => {
   const calc = createCalculator(Decimal);
   // default 0

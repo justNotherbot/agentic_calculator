@@ -1,0 +1,71 @@
+/* Shared component tokens and variants used by the calculator and history card. */
+:root {
+  --brand: #4f46e5;
+  --brand-dark: #3730a3;
+  --focus: #f59e0b;
+}
+
+[hidden] { display: none !important; }
+
+.eyebrow {
+  color: var(--brand);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.key {
+  min-height: 3.05rem;
+  border-radius: 0.5rem;
+  border: 0;
+  color: #1e293b;
+  font-size: 1.05rem;
+  font-weight: 650;
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+
+.key:hover { transform: translateY(-1px); }
+.key:active { transform: translateY(0); }
+.key:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.key-number { background: #e2e8f0; }
+.key-number:hover { background: #cbd5e1; }
+.key-control { background: #cbd5e1; }
+.key-control:hover { background: #b8c4d2; }
+.key-operator { background: #c7d2fe; color: var(--brand-dark); }
+.key-operator:hover { background: #a5b4fc; }
+.key-equals { background: var(--brand); color: white; }
+.key-equals:hover { background: var(--brand-dark); }
+
+#main-display { scrollbar-width: thin; scrollbar-color: #64748b transparent; }
+#main-display::-webkit-scrollbar { height: 4px; }
+#main-display::-webkit-scrollbar-thumb { background: #64748b; border-radius: 999px; }
+
+.history-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  padding: 0.8rem 0.9rem;
+}
+
+.history-card time {
+  color: #64748b;
+  display: block;
+  font-size: 0.7rem;
+  margin-bottom: 0.35rem;
+}
+
+.history-expression {
+  color: #334155;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.history-result {
+  color: var(--brand-dark);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.is-busy .key-equals { cursor: wait; opacity: 0.65; }
