@@ -6,6 +6,7 @@
 }
 
 [hidden] { display: none !important; }
+.hidden { display: none !important; }
 
 .eyebrow {
   color: var(--brand);
@@ -37,7 +38,17 @@
 .key-equals { background: var(--brand); color: white; }
 .key-equals:hover { background: var(--brand-dark); }
 
-#main-display { scrollbar-width: thin; scrollbar-color: #64748b transparent; }
+#main-display {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-family: ui-monospace, monospace;
+  font-size: 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: #64748b transparent;
+}
 #main-display::-webkit-scrollbar { height: 4px; }
 #main-display::-webkit-scrollbar-thumb { background: #64748b; border-radius: 999px; }
 

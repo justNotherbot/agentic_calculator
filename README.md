@@ -23,7 +23,20 @@ Run the frontend from a local web server rather than opening the HTML file direc
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000`. The history is local to the browser and can be removed with **Clear history**. Client tests: `npm test`.
+Then open `http://localhost:8000`. The history is local to the browser and can be removed with **Clear history**.
+
+## Client tests (Practice 8, part 3)
+
+```bash
+npm install
+npm test
+npm run test:client
+npm run test:visual
+```
+
+`npm test` runs 11 decimal.js calculation unit tests. `npm run test:client` starts a local server automatically and runs Playwright browser tests using locally installed Chrome (`/usr/bin/google-chrome`) and Python 3. The browser tests check the visible calculation-to-history flow, editing and operator chaining, unary operations, invalid math, timestamped/empty history, delayed and failed saves, duplicate prevention, clear-history errors, long-result scrolling, keyboard focus, and a real IndexedDB save surviving a reload. Tests replace the app's `history.js` storage boundary with an in-memory fixture matching its `list`, `save`, and `clear` methods for deterministic empty/success/delay/error responses; the persistence smoke test instead uses real IndexedDB. CDN styles are blocked in those tests and decimal.js is served from the installed npm package so the behavioral tests do not depend on CDN availability. `npm run test:visual` checks desktop/mobile geometry with CDN styles enabled and generates the [scenario screenshots](./evidence/README.md). It needs network access for the styling CDNs.
+
+AI proposed the tests for visible results, validation, pending save deduplication, history states, and retry. Review corrections: Enter on a focused button activates that button, so the keyboard test defocuses AC before entering an expression; retry assertions must check that the error actually disappears, not merely that history gained a row. Mutation check performed: temporarily removing the `historyError.classList.add('hidden')` line at the start of `saveCalculation` in `main.js` caused the retry test to fail because the old error stayed visible. The line was restored before the final test run.
 
 ## Primary user scenario (Practice 8, part 1.1)
 

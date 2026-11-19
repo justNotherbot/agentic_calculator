@@ -4,10 +4,13 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/calculator.test.js",
+    "test:client": "playwright test",
+    "test:visual": "playwright test test/client/visual.spec.js",
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "decimal.js": "10.4.3",
     "husky": "9.1.6"
   }
