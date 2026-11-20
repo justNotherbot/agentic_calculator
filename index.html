@@ -3,74 +3,52 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Precision GUI Calculator</title>
-    <!-- Tailwind via CDN -->
+    <title>Decimal Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <!-- decimal.js via CDN (pinned) -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/daisyui.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
   </head>
-  <body class="min-h-screen flex items-center justify-center bg-slate-100 text-slate-900">
-    <main class="w-full max-w-sm p-4">
-      <section class="bg-white shadow-xl rounded-xl overflow-hidden">
-        <!-- Display -->
-        <div class="bg-slate-900 text-white p-4">
-          <div id="prev-display" class="h-6 text-sm text-slate-300 text-right truncate"></div>
-          <div id="main-display" class="mt-1 text-right text-4xl font-mono leading-none select-none overflow-x-auto whitespace-nowrap">0</div>
-        </div>
-
-        <!-- Keypad -->
-        <div class="grid grid-cols-4 gap-2 p-3">
-          <button data-action="ac" class="rounded-lg py-3 text-lg font-medium bg-slate-300 hover:bg-slate-400 active:bg-slate-500 text-slate-900">AC</button>
-          <button data-action="pi" class="rounded-lg py-3 text-lg font-medium bg-slate-300 hover:bg-slate-400 active:bg-slate-500 text-slate-900">π</button>
-          <button data-action="del" class="rounded-lg py-3 text-lg font-medium bg-slate-300 hover:bg-slate-400 active:bg-slate-500 text-slate-900" title="Backspace">
-            <i class="fa-solid fa-delete-left"></i>
-          </button>
-          <button data-action="op" data-op="/" class="rounded-lg py-3 text-lg font-medium bg-indigo-200 hover:bg-indigo-300 active:bg-indigo-400 text-slate-900">÷</button>
-
-          <button data-action="sin" class="rounded-lg py-3 text-lg font-medium bg-slate-300 hover:bg-slate-400 active:bg-slate-500 text-slate-900">sin</button>
-          <button data-action="cos" class="rounded-lg py-3 text-lg font-medium bg-slate-300 hover:bg-slate-400 active:bg-slate-500 text-slate-900">cos</button>
-          <button data-action="exp" class="rounded-lg py-3 text-lg font-medium bg-slate-300 hover:bg-slate-400 active:bg-slate-500 text-slate-900">exp</button>
-          <button data-action="op" data-op="*" class="rounded-lg py-3 text-lg font-medium bg-indigo-200 hover:bg-indigo-300 active:bg-indigo-400 text-slate-900">×</button>
-
-          <button data-action="digit" data-digit="7" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">7</button>
-          <button data-action="digit" data-digit="8" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">8</button>
-          <button data-action="digit" data-digit="9" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">9</button>
-          <button data-action="op" data-op="-" class="rounded-lg py-3 text-lg font-medium bg-indigo-200 hover:bg-indigo-300 active:bg-indigo-400 text-slate-900">−</button>
-
-          <button data-action="digit" data-digit="4" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">4</button>
-          <button data-action="digit" data-digit="5" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">5</button>
-          <button data-action="digit" data-digit="6" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">6</button>
-          <button data-action="op" data-op="+" class="rounded-lg py-3 text-lg font-medium bg-indigo-200 hover:bg-indigo-300 active:bg-indigo-400 text-slate-900">+</button>
-
-          <button data-action="sqrt" class="rounded-lg py-3 text-lg font-medium bg-slate-300 hover:bg-slate-400 active:bg-slate-500 text-slate-900">√</button>
-          <button data-action="digit" data-digit="1" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">1</button>
-          <button data-action="digit" data-digit="2" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">2</button>
-          <button data-action="digit" data-digit="3" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">3</button>
-
-          <button data-action="op" data-op="^" class="rounded-lg py-3 text-lg font-medium bg-indigo-200 hover:bg-indigo-300 active:bg-indigo-400 text-slate-900">^</button>
-          <button data-action="digit" data-digit="0" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">0</button>
-          <button data-action="dot" class="rounded-lg py-3 text-lg font-medium bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-900">.</button>
-          <button data-action="eq" class="rounded-lg py-3 text-lg font-medium bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 text-white">=</button>
+  <body class="min-h-screen bg-slate-100 text-slate-800">
+    <main class="mx-auto max-w-[770px] px-5 py-8 max-[740px]:max-w-[380px] max-[740px]:px-3">
+      <section class="card rounded-xl border border-slate-200 bg-white p-6 max-[740px]:p-5" aria-labelledby="page-title">
+        <header class="mb-4">
+          <div class="mb-1 flex justify-between gap-2 text-[11px] font-bold tracking-wider text-indigo-600"><span>DECIMAL CALCULATOR</span><span class="text-slate-500">PRECISION MATH</span></div>
+          <h1 id="page-title" class="text-[21px] font-bold">Start with an expression</h1>
+          <p class="text-[13px] text-slate-500">Use the keypad or type directly into the fields.</p>
+        </header>
+        <div class="grid grid-cols-[330px_minmax(0,1fr)] items-start gap-5 max-[740px]:grid-cols-1">
+          <div class="min-w-0">
+            <div class="rounded-lg bg-indigo-50 p-4">
+              <span id="result-label" class="text-[11px] font-bold tracking-wider text-slate-500">DISPLAY</span>
+              <output id="main-display" aria-label="Result" class="block overflow-x-auto whitespace-nowrap text-4xl font-bold">0</output>
+            </div>
+            <div class="mt-2 grid grid-cols-3 gap-2">
+              <label class="field">First number<input id="first-number" class="input" type="text" inputmode="decimal" autocomplete="off" value="0.1" /></label>
+              <label class="field">Operation<select id="operation" class="select input" aria-label="Operation"><option value="+">+</option><option value="-">−</option><option value="*">×</option><option value="/">÷</option><option value="^">xʸ</option><option value="mod">mod</option></select></label>
+              <label class="field">Second number<input id="second-number" class="input" type="text" inputmode="decimal" autocomplete="off" value="0.2" /></label>
+            </div>
+            <div id="keypad" class="mt-2 grid grid-cols-4 gap-1.5" aria-label="Calculator keypad">
+              <button class="btn key function" data-action="sin">sin</button><button class="btn key function" data-action="cos">cos</button><button class="btn key function" data-action="exp">exp</button><button class="btn key function" data-action="pi">π</button>
+              <button class="btn key function" data-action="sqrt">√x</button><button class="btn key function" data-action="power">xʸ</button><button class="btn key function col-span-2" data-action="mod">mod</button>
+              <button class="btn key" data-digit="7">7</button><button class="btn key" data-digit="8">8</button><button class="btn key" data-digit="9">9</button><button class="btn key operator" data-op="/">÷</button>
+              <button class="btn key" data-digit="4">4</button><button class="btn key" data-digit="5">5</button><button class="btn key" data-digit="6">6</button><button class="btn key operator" data-op="*">×</button>
+              <button class="btn key" data-digit="1">1</button><button class="btn key" data-digit="2">2</button><button class="btn key" data-digit="3">3</button><button class="btn key operator" data-op="-">−</button>
+              <button class="btn key" data-action="ac">AC</button><button class="btn key" data-digit="0">0</button><button class="btn key" data-action="dot">.</button><button class="btn key operator" data-op="+">+</button>
+            </div>
+            <p id="feedback" class="flex min-h-9 items-center text-xs text-slate-500" role="status">Choose an operation, then calculate.</p>
+            <button id="calculate" class="btn btn-primary w-full rounded-md bg-indigo-600 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300">Calculate</button>
+            <p id="hint" class="mt-2 text-center text-[11px] text-slate-500">Enter to calculate · Backspace to edit</p>
+          </div>
+          <aside class="card min-w-0 rounded-lg border border-slate-200 bg-slate-50 p-4" aria-labelledby="history-title">
+            <div class="flex items-center justify-between"><h2 id="history-title" class="text-sm font-bold">History</h2><span id="history-count" class="rounded bg-indigo-100 px-2 text-xs text-indigo-600">0</span></div>
+            <p class="mt-3 text-[11px] font-bold tracking-wider text-slate-500">NEWEST FIRST</p>
+            <div id="history-content" class="mt-2"></div>
+          </aside>
         </div>
       </section>
-      <p class="mt-3 text-center text-xs text-slate-600">Precision by decimal.js (round half even). Scroll the main display horizontally to view extra precision. Keyboard: digits, ., + - * / ^, Enter, Backspace, Esc.</p>
+      <p class="mt-3 text-center text-xs text-slate-500">Calculations use decimal.js with round-half-even precision. Results scroll horizontally.</p>
     </main>
-
     <script type="module" src="./main.js"></script>
-    <script>
-      // Tailwind button presets
-      tailwind.config = {
-        theme: {
-          extend: {}
-        }
-      };
-    </script>
-    <style>
-      /* Hide horizontal scrollbar while keeping scrollability */
-      #main-display { scrollbar-width: none; -ms-overflow-style: none; }
-      #main-display::-webkit-scrollbar { display: none; }
-    </style>
   </body>
-  </html>
+</html>

@@ -1,6 +1,6 @@
 # Precision GUI Calculator
 
-Minimal browser-based calculator using decimal.js for precise arithmetic and TailwindCSS for styling.
+Browser-based calculator using decimal.js for precise arithmetic and Tailwind CSS for styling.
 
 ## Primary user scenario (Practice 8, part 1.1)
 
@@ -8,28 +8,30 @@ Minimal browser-based calculator using decimal.js for precise arithmetic and Tai
 
 **Task and expected result:** The user enters two numbers and an operation (for example, `0.1 + 0.2`), submits the calculation, and sees `0.3` on the display. The completed calculation also appears in a viewable, newest-first history list with its timestamp, expression, and result so it can be reviewed later. With no saved calculations, the list shows an empty state; while a calculation is being submitted, the interface shows progress and prevents duplicate submissions. An invalid expression or failed submission shows an actionable error, allowing the user to correct the input or retry. The scenario must work with both the keypad and keyboard on mobile and desktop.
 
-The calculator currently computes and displays results locally. History, asynchronous submission, progress/empty states, and retry behavior above describe the **target scenario**, not features already implemented.
+The working calculator submits expressions to a Node backend using `decimal.js` and stores history in a server-side JSON file. Results and history persist across browser sessions and server restarts. Failed requests keep the input for retry.
 
 ## AI-assisted mockup (Practice 8, part 1.2)
 
-[Open the static scenario prototype](./mockup.html) in a browser, or view it directly in the repository along with [its styles](./mockup.css). It is a self-contained, responsive storyboard; no account or design-tool link is required to review it. The six screens show the initial calculator, expression input with a visible keyboard focus, loading while saving, a successful result in a scrollable history with timestamp, expression, and result, empty history, and a failed save with a retry action. The input example is `0.1 + 0.2 = 0.3`. Timestamps in the mockup are illustrative, not live data.
+[Download the editable Figma design](./agentic_calculator.fig) or [open the static scenario prototype](./mockup.html) in a browser (with [its styles](./mockup.css)). The HTML is a responsive storyboard that can be reviewed without a Figma account. Its six screens follow the Figma order: ready, completed, history, submitting, invalid input, and submission failed. Each shows a result display, three labeled expression fields, keypad, full-width blue Calculate button (or its disabled/retry state), and a history panel. The example is `0.1 + 0.2 = 0.3`. Timestamps are illustrative, not live data.
 
-AI proposed a single-screen calculator with a history area and distinct loading, success, empty, and failure states, using the existing slate/indigo palette. On review, I retained the full existing keypad (including unary functions), added `log₁₀` and `mod` controls and a timestamped calculation list, added a visible focus example, kept the result visible on save failure, and specified that the save action is disabled while pending. `log₁₀(x)` means base-10 logarithm (only for positive x); `a mod b` means remainder (b cannot be zero). The prototype is **static**: buttons and retry illustrate intended behavior, not functioning actions. Logarithm, modulo, history, and saving still need implementation in the working application; its final interface should be checked against these screens.
+AI proposed a two-panel decimal calculator and history interface, with desktop and mobile frames for six states. After comparing the HTML prototype to the Figma layers, I replaced the unrelated three-column storyboard and integrated keypad with the design's stacked scenarios, labeled inputs, separate scientific and numeric keys, dedicated blue Calculate button, inline feedback, and newest-first history. The invalid-input screen keeps the first operand and highlights the missing second one; the failed-submission screen keeps both operands and offers Retry calculation. The prototype is **static**: buttons and retry illustrate intended behavior, not functioning actions. The working application now follows this layout; its dates and results are real, unlike the mockup's examples.
+
+## Interface (Practice 8, part 2)
+
+**Component library:** daisyUI 5 (CDN) on Tailwind CSS, using its `btn`, `input`, `select`, and `card` components for keypad/actions, labeled fields, and history. Shared refinements in `style.css` retain the Figma's indigo/slate colors, system sans-serif typography, spacing, and visible focus rings. No build step or secrets are needed. The interface reuses the existing `calculator.js` decimal arithmetic rather than duplicating calculation logic in the browser.
+
+Enter both numbers (or use the keypad in the focused field), select an operation, and press Calculate or Enter. The server validates and calculates with `decimal.js`, saves the result, and returns the timestamped entry for the display and newest-first history. Missing/invalid values and divide-by-zero show corrective messages; server failure leaves the fields intact and offers Retry calculation. During the request, inputs and submission are disabled, and repeated Enter is ignored. Retry reuses the same request ID so a lost response does not create a duplicate. History is shared by everyone using this server (there are no accounts). AC clears the current fields, not history.
 
 How to run:
-1. Open `index.html` in any modern browser (Chrome, Firefox, Edge, Safari - latest 2 versions).
-2. No build step required; all dependencies load via CDN.
+1. Run `npm install` and `npm start`, then open `http://localhost:8000/`. Do not use a static file server: the history API is provided by `server.js`. An internet connection is needed for the Tailwind, daisyUI, and decimal.js CDNs.
+2. History is stored in `history.json` in the project directory by default (git-ignored). Set `HISTORY_FILE=/path/to/history.json` to choose another existing writable directory and `PORT=8001` to change the port. Keep a backup of the file if you need durable data beyond this machine. Run `npm test` for arithmetic tests.
 
 Keyboard shortcuts:
-- Digits `0-9`, `.` for decimal point.
-- Operators `+ - * / ^`.
-- `Enter` or `=` computes.
-- `Backspace` deletes last digit.
-- `Escape` clears all (AC).
-- `r` or `s` runs square root, `p` inserts π.
+- Tab moves between the labeled fields, operation selector, keypad, and Calculate button. Type numbers directly in either field; Backspace edits the focused field.
+- Enter calculates; Escape clears the fields. Keypad buttons edit the last focused number field.
 
 Precision:
-- Uses decimal.js with precision 40 and ROUND_HALF_EVEN. Display clamps to ~14 significant digits; large/small numbers may switch to scientific notation. The main display is horizontally scrollable to reveal additional precision.
+- Uses decimal.js with precision 40 and ROUND_HALF_EVEN. The main display is horizontally scrollable to reveal additional precision.
 
 Error handling:
-- Division by zero, sqrt of negative, or invalid exponent sets display to `ERROR`. Press any digit to start fresh or press AC to reset. DEL is ignored during ERROR.
+- Invalid or missing fields show an inline message and highlight the affected field. Division by zero, invalid powers, and invalid unary results display `ERROR` with guidance; edit the field and retry or press AC to reset.

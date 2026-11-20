@@ -4,11 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "start": "node server.js",
     "test": "node --test",
     "prepare": "husky install"
   },
+  "dependencies": {
+    "decimal.js": "10.4.3"
+  },
   "devDependencies": {
-    "decimal.js": "10.4.3",
     "husky": "9.1.6"
   }
 }

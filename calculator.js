@@ -55,6 +55,19 @@ export function createCalculator(DecimalDep) {
     }
   }
 
+  function setOperand(which, value) {
+    if (which !== 'previousOperand' && which !== 'currentOperand') return;
+    state[which] = value;
+    state.errorState = false;
+    state.lastEquals = null;
+  }
+
+  function setOperation(op) {
+    state.operation = op;
+    state.errorState = false;
+    state.lastEquals = null;
+  }
+
   function appendDot() {
     if (state.errorState) return;
     if (!state.currentOperand.includes('.')) {
@@ -105,6 +118,9 @@ export function createCalculator(DecimalDep) {
           result = a.dividedBy(b); break;
         case '^':
           result = Dec.pow(a, b); break;
+        case 'mod':
+          if (b.isZero()) return setError();
+          result = a.mod(b); break;
         default:
           return;
       }
@@ -204,7 +220,7 @@ export function createCalculator(DecimalDep) {
   }
 
   function opSymbol(op) {
-    return op === '/' ? '÷' : op === '*' ? '×' : op;
+    return op === '/' ? '÷' : op === '*' ? '×' : op === '^' ? 'xʸ' : op;
   }
 
   function prettyPrev() {
@@ -218,6 +234,8 @@ export function createCalculator(DecimalDep) {
     clearAll,
     backspace,
     appendDigit,
+    setOperand,
+    setOperation,
     appendDot,
     chooseOperation,
     compute,
