@@ -6,12 +6,14 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --test",
+    "test:client": "playwright test",
     "prepare": "husky install"
   },
   "dependencies": {
     "decimal.js": "10.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.1",
     "husky": "9.1.6"
   }
 }

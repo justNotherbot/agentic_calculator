@@ -24,7 +24,17 @@ Enter both numbers (or use the keypad in the focused field), select an operation
 
 How to run:
 1. Run `npm install` and `npm start`, then open `http://localhost:8000/`. Do not use a static file server: the history API is provided by `server.js`. An internet connection is needed for the Tailwind, daisyUI, and decimal.js CDNs.
-2. History is stored in `history.json` in the project directory by default (git-ignored). Set `HISTORY_FILE=/path/to/history.json` to choose another existing writable directory and `PORT=8001` to change the port. Keep a backup of the file if you need durable data beyond this machine. Run `npm test` for arithmetic tests.
+2. History is stored in `history.json` in the project directory by default (git-ignored). Set `HISTORY_FILE=/path/to/history.json` to choose another existing writable directory and `PORT=8001` to change the port. Keep a backup of the file if you need durable data beyond this machine. Run `npm test` for arithmetic and API tests.
+
+## Client Tests (Practice 8, part 3)
+
+Install dependencies with `npm install`, install Chromium with `npx playwright install chromium`, then run `npm run test:client`. If Chrome is already installed, run `CHROME_PATH=/usr/bin/google-chrome npm run test:client` instead. The test runner starts its own Node server on port 8766 with an isolated temporary history file, removed after the suite. Run `npm test` separately for unit and backend API tests; both commands must pass. No credentials or external API are needed, but the page loads its CDN styles and decimal.js script over the internet.
+
+Playwright browser tests check labels, keypad and keyboard interactions, missing/invalid fields, empty and loaded history, loading, success, math errors, server errors with retry, history-load failure, narrow screens, and a real-API submit-and-reload flow. For mocked calls, `GET /api/history` returns an array of `{id, timestamp, expression, result}` and `POST /api/history` returns one entry or `{error}` with an error status, matching `server.js`. The delayed-response test holds `POST` open, presses Enter twice, and confirms only one request was sent. There are no dialogs in this scenario.
+
+AI helped propose the user actions and API states to cover (example requests: "Check the visible outcome of submitting 0.1 + 0.2" and "Hold a POST response and verify repeated Enter sends only one request"). I checked mock responses against the server, added a real-backend browser flow so the tests do not rely solely on mocks, and checked test sensitivity by temporarily removing the save-error message: its browser test failed as expected, then passed after restoring the message. The editable Figma design and static prototype are linked above.
+
+Verified locally: `CHROME_PATH=/usr/bin/google-chrome npm run test:client` passed **15/15** browser tests; `npm test` passed **20/20** unit and API tests. Run these commands again for the current result on your machine. Browser tests include a computed-style check for the visible keyboard focus ring and generate [scenario screenshots](./evidence/README.md) showing [empty](./evidence/empty.png), [loading](./evidence/loading.png), [success](./evidence/success.png), and [error](./evidence/error.png) states.
 
 Keyboard shortcuts:
 - Tab moves between the labeled fields, operation selector, keypad, and Calculate button. Type numbers directly in either field; Backspace edits the focused field.
